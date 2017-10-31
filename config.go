@@ -66,7 +66,7 @@ func (s *Config) SetConfig(args interface{}) error {
 	return nil
 }
 
-func (s *Config) SaveFile(fileName string) (err error) {
+func (s *Config) SaveFile(fileName string, bak bool) (err error) {
 	var ok bool
 	err, ok = s.configChange()
 	if err != nil || ok {
@@ -76,10 +76,13 @@ func (s *Config) SaveFile(fileName string) (err error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	err = goconfig.SaveConfigFile(s.bakConfig, fileName+".bak")
-	if err != nil {
-		return err
+	if bak {
+		err = goconfig.SaveConfigFile(s.bakConfig, fileName+".bak")
+		if err != nil {
+			return err
+		}
 	}
+
 	err = goconfig.SaveConfigFile(s.curConfig, fileName)
 	if err != nil {
 		return err
